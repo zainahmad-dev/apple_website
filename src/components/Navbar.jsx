@@ -12,7 +12,7 @@ const Navbar = () => {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-7 max-sm:justify:end max:sm:flex-1">
+        <div className="flex items-center gap-7 max-sm:justify-end max-sm:flex-1">
             <img 
             src={searchImg}
             alt="Search"

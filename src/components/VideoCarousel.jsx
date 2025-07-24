@@ -21,6 +21,14 @@ const VideoCarousel = () => {
    const { isEnd, startPlay, videoId, isLastVideo, isPlaying } = video;
 
    useGSAP(() =>{ 
+gsap.to('#slider',{
+  transform:`translateX(${-100 * videoId}%)`,
+  duration:2,
+  ease:'power2.inOut',
+
+})
+
+
     gsap.to('video',{
       scrollTrigger:{
         trigger:'#video',
@@ -57,13 +65,58 @@ const VideoCarousel = () => {
    if(span[videoId]){
     //Animate the video progress bar
     let anim =gsap.to(span[videoId], {
-      onUpdate: () => {},
-      onComplete: () =>{}
-    }
-   
-  
+      onUpdate: () => {
+       const progress = Math.ceil(anim.progress() * 100);
+       if(progress !=curentProgress){
+        curentProgress=progress;
 
-    )}
+           // set the width of the progress bar
+            gsap.to(videoDivRef.current[videoId], {
+              width:
+                window.innerWidth < 760
+                  ? "10vw" // mobile
+                  : window.innerWidth < 1200
+                  ? "10vw" // tablet
+                  : "4vw", // laptop
+            });
+            gsap.to(span[videoId], {
+              width: `${curentProgress}%`,
+              backgroundColor:'white'
+            });
+       }
+      },
+     onComplete: () => {
+          if (isPlaying) {
+            gsap.to(videoDivRef.current[videoId], {
+              width: "12px",
+            });
+            gsap.to(span[videoId], {
+              backgroundColor: "#afafaf",
+            });
+          }
+        },
+      });
+
+      if (videoId == 0) {
+        anim.restart();
+      }
+
+      // update the progress bar
+      const animUpdate = () => {
+        anim.progress(
+          videoRef.current[videoId].currentTime /
+            hightlightsSlides[videoId].videoDuration
+        );
+      };
+
+      if (isPlaying) {
+        // ticker to update the progress bar
+        gsap.ticker.add(animUpdate);
+      } else {
+        // remove the ticker when the video is paused (progress bar is stopped)
+        gsap.ticker.remove(animUpdate);
+      }
+    }
  },[videoId,startPlay])
 
  const handleProcess = (type, i) =>{
@@ -79,6 +132,9 @@ const VideoCarousel = () => {
        break;
       
        case 'play':
+     setVideo((pre)=>({...pre, isPlaying:!pre.isPlaying}))
+       break;
+       case 'pause':
      setVideo((pre)=>({...pre, isPlaying:!pre.isPlaying}))
        break;
     default:
@@ -97,7 +153,15 @@ const VideoCarousel = () => {
          playsInline={true}
          preload='auto'
          muted
+         className={`${list.id === 2 && 'translate-x-44'}
+         pointer-events-none
+         `}
          ref={(el) =>(videoRef.current[i]=el)}
+         onEnded={() =>
+          i !==3
+          ? handleProcess('video-end', i)
+          : handleProcess('video-last')
+         }
          onPlay={()=>{
           setVideo((prevVideo)=>({
             ...prevVideo,  isPlaying:true
@@ -126,8 +190,8 @@ const VideoCarousel = () => {
       {videoRef.current.map((_, i) => ( 
         <span
         key={i}
-        ref={(el) => (videoSpanRef.current[i] = el)}
-        className="mx-2 w-3 h-3 bg-gray-200 rounded-full cursor-pointer"
+        ref={(el) => (videoDivRef.current[i] = el)}
+        className="mx-2 w-3 h-3 bg-gray-200 rounded-full relative cursor-pointer"
         >
         <span className="absolute h-full w-full rounded-full"
         ref={(el) => (videoSpanRef.current[i] = el)}

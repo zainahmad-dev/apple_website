@@ -3,8 +3,9 @@ import Lights from "./Lights"
 import  * as THREE from 'three'
 import { Suspense } from "react"
 import IPhone from "./IPhone"
+import Loader from "./Loader"
 
-const ModelView = ({index, groupRef, gsapType, controlRef, setRotationSize, size,item}) => {
+const ModelView = ({index, groupRef, gsapType, controlRef, setRotationState, size,item}) => {
   return (
     <View
     index={index}
@@ -27,7 +28,7 @@ const ModelView = ({index, groupRef, gsapType, controlRef, setRotationSize, size
     
     />
     <group ref={groupRef} name={`${index === 1} ? 'small':'large'`} position={[0,0,0]}>
-    <Suspense fallback={<Html><div>Loading</div></Html>}>
+    <Suspense fallback={<Loader/>}>
     <IPhone 
      scale={index === 1 ? [15, 15, 15]:[17,17,17]}
      item={item}
